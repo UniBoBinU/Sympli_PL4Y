@@ -65,7 +65,7 @@ const Timer: React.FC<TimerProps> = ({ duration, isActive, onComplete, onReset }
   };
 
   return (
-    <div className="bg-[#4C038E] p-4 rounded-lg shadow-md text-[#FB007C]">
+    <div className="bg-[#6604A0] p-4 rounded-lg shadow-md text-[#FB007C]">
       <div className="flex items-center gap-2 mb-2">
         <TimerIcon className="h-5 w-5 text-[#0085FB]" />
         <h2 className="text-lg font-bold">Timer</h2>
@@ -75,7 +75,7 @@ const Timer: React.FC<TimerProps> = ({ duration, isActive, onComplete, onReset }
         {formatTime(timeRemaining)}
       </div>
       
-      <Progress value={progress} className="h-2 bg-[#4C038E]/60">
+      <Progress value={progress} className="h-2 bg-[#6604A0]/60">
         <div 
           className={cn("h-full transition-all", getTimerColor())} 
           style={{ width: `${progress}%` }}

@@ -41,11 +41,11 @@ const GameHistory: React.FC<GameHistoryProps> = ({ events, players }) => {
   const actionEvents = events.filter(event => event.type === "ACTION" || event.type === "CHOICE");
 
   return (
-    <div className="bg-purple-800 p-4 rounded-lg shadow-md h-60 text-magenta-500">
+    <div className="bg-[#6604A0] p-4 rounded-lg shadow-md h-60 text-[#FB007C]">
       <h2 className="text-lg font-bold mb-2">Action History</h2>
       
       {actionEvents.length === 0 ? (
-        <div className="text-magenta-300 text-center py-4">
+        <div className="text-[#FB007C]/80 text-center py-4">
           No actions recorded yet.
         </div>
       ) : (
@@ -53,11 +53,11 @@ const GameHistory: React.FC<GameHistoryProps> = ({ events, players }) => {
           <div className="space-y-2 pr-4">
             {actionEvents.map((event, index) => (
               <div key={event.id} className="text-sm border-l-2 pl-2" style={{ borderColor: getPlayerColor(event.playerId) }}>
-                <div className="flex justify-between text-xs text-magenta-300">
+                <div className="flex justify-between text-xs text-[#FB007C]/80">
                   <span>#{index + 1}</span>
                   <span>{getPlayerName(event.playerId)}</span>
                 </div>
-                <p className="text-magenta-400">{event.description}</p>
+                <p className="text-[#FB007C]">{event.description}</p>
               </div>
             ))}
           </div>

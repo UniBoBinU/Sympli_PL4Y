@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -64,7 +63,7 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				game: {
-					primary: '#4C038E', // Purple
+					primary: '#6604A0', // Updated Purple
 					secondary: '#FB007C', // Magenta
 					bonus: '#0085FB', // Blue
 					penalty: '#ef4444',

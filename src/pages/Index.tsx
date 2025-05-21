@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from "react";
 import { 
   GamePhase, 
@@ -429,18 +428,18 @@ const Index = () => {
 
   if (gameState.phase === GamePhase.SETUP) {
     return (
-      <div className="min-h-screen bg-purple-800 py-12 px-4">
+      <div className="min-h-screen bg-[#6604A0] py-12 px-4">
         <PlayerSetup onPlayersConfirmed={handlePlayersConfirmed} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-purple-800 p-4 text-magenta-500">
+    <div className="min-h-screen bg-[#6604A0] p-4 text-[#FB007C]">
       <div className="container mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-magenta-400">Board Game</h1>
-          <Button onClick={handleResetGame} variant="outline" className="bg-cyan-500 text-purple-800 hover:bg-cyan-400">New Game</Button>
+          <h1 className="text-3xl font-bold text-[#FB007C]">Board Game</h1>
+          <Button onClick={handleResetGame} variant="outline" className="bg-[#0085FB] text-[#6604A0] hover:bg-[#0085FB]/80">New Game</Button>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
