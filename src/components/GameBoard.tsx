@@ -56,14 +56,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ players, currentPlayerIndex }) =>
                 >
                   <span className="text-xs font-medium">{space.id + 1}</span>
                   
-                  {space.type !== SpaceType.REGULAR && space.type !== SpaceType.POSITION && (
-                    <div className="absolute top-0 left-0 w-full text-[8px] text-center">
-                      {space.type}
-                    </div>
-                  )}
-                  
-                  {/* Show POSITION type without the space number */}
-                  {space.type === SpaceType.POSITION && (
+                  {/* Only show type for special spaces, not REGULAR or POSITION */}
+                  {space.type !== SpaceType.REGULAR && (
                     <div className="absolute top-0 left-0 w-full text-[8px] text-center">
                       {space.type}
                     </div>

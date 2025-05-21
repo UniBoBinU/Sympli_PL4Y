@@ -75,10 +75,7 @@ const Timer: React.FC<TimerProps> = ({ duration, isActive, onComplete, onReset }
         {formatTime(timeRemaining)}
       </div>
       
-      <Progress 
-        value={progress} 
-        className="h-2 bg-purple-600"
-      >
+      <Progress value={progress} className="h-2 bg-purple-600">
         <div 
           className={cn("h-full transition-all", getTimerColor())} 
           style={{ width: `${progress}%` }}

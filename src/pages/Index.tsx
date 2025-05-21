@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from "react";
 import { 
   GamePhase, 
@@ -69,6 +70,58 @@ const Index = () => {
       timerActive: true
     }));
   }, [getRandomTimerDuration]);
+
+  // Advance to the next player - MOVED THIS UP to fix the declaration order issue
+  const advanceToNextPlayer = useCallback(() => {
+    setGameState(prev => {
+      // Find the next player who doesn't have skipTurn
+      let nextPlayerIndex = (prev.currentPlayerIndex + 1) % prev.players.length;
+      
+      // If the next player has skipTurn flag, set it to false and find the next player
+      const updatedPlayers = [...prev.players];
+      if (updatedPlayers[nextPlayerIndex].skipTurn) {
+        updatedPlayers[nextPlayerIndex] = {
+          ...updatedPlayers[nextPlayerIndex],
+          skipTurn: false
+        };
+        
+        // Log the skipped turn
+        const skipEvent = createGameEvent(
+          updatedPlayers[nextPlayerIndex].id,
+          "SKIP_TURN",
+          "Turn skipped due to penalty"
+        );
+        
+        // Move to the next player
+        nextPlayerIndex = (nextPlayerIndex + 1) % prev.players.length;
+        
+        return {
+          ...prev,
+          players: updatedPlayers,
+          currentPlayerIndex: nextPlayerIndex,
+          history: [...prev.history, skipEvent]
+        };
+      }
+      
+      // Next player's turn event
+      const turnEvent = createGameEvent(
+        updatedPlayers[nextPlayerIndex].id,
+        "TURN_START",
+        `${updatedPlayers[nextPlayerIndex].name}'s turn`
+      );
+      
+      return {
+        ...prev,
+        currentPlayerIndex: nextPlayerIndex,
+        history: [...prev.history, turnEvent]
+      };
+    });
+    
+    // Reset dice state and allow rolling again
+    setDiceRolling(false);
+    setCanRoll(true);
+    setProcessedRoll(false);
+  }, []);
 
   // Handle player setup completion
   const handlePlayersConfirmed = (players: Player[]) => {
@@ -291,7 +344,7 @@ const Index = () => {
         advanceToNextPlayer();
       }, 1500);
     }
-  }, [diceValue, gameState.players, gameState.currentPlayerIndex, gameState.actionCategories, diceRolling, processedRoll, gameState.timerDuration]);
+  }, [diceValue, gameState.players, gameState.currentPlayerIndex, gameState.actionCategories, diceRolling, processedRoll, gameState.timerDuration, advanceToNextPlayer]);
 
   // Handle action completion
   const handleActionComplete = useCallback(() => {
@@ -343,58 +396,6 @@ const Index = () => {
     // Reset the timer with a new random duration
     resetTimer();
   }, [handleActionComplete, advanceToNextPlayer, resetTimer]);
-
-  // Advance to the next player
-  const advanceToNextPlayer = useCallback(() => {
-    setGameState(prev => {
-      // Find the next player who doesn't have skipTurn
-      let nextPlayerIndex = (prev.currentPlayerIndex + 1) % prev.players.length;
-      
-      // If the next player has skipTurn flag, set it to false and find the next player
-      const updatedPlayers = [...prev.players];
-      if (updatedPlayers[nextPlayerIndex].skipTurn) {
-        updatedPlayers[nextPlayerIndex] = {
-          ...updatedPlayers[nextPlayerIndex],
-          skipTurn: false
-        };
-        
-        // Log the skipped turn
-        const skipEvent = createGameEvent(
-          updatedPlayers[nextPlayerIndex].id,
-          "SKIP_TURN",
-          "Turn skipped due to penalty"
-        );
-        
-        // Move to the next player
-        nextPlayerIndex = (nextPlayerIndex + 1) % prev.players.length;
-        
-        return {
-          ...prev,
-          players: updatedPlayers,
-          currentPlayerIndex: nextPlayerIndex,
-          history: [...prev.history, skipEvent]
-        };
-      }
-      
-      // Next player's turn event
-      const turnEvent = createGameEvent(
-        updatedPlayers[nextPlayerIndex].id,
-        "TURN_START",
-        `${updatedPlayers[nextPlayerIndex].name}'s turn`
-      );
-      
-      return {
-        ...prev,
-        currentPlayerIndex: nextPlayerIndex,
-        history: [...prev.history, turnEvent]
-      };
-    });
-    
-    // Reset dice state and allow rolling again
-    setDiceRolling(false);
-    setCanRoll(true);
-    setProcessedRoll(false);
-  }, []);
 
   // Reset the game
   const handleResetGame = () => {

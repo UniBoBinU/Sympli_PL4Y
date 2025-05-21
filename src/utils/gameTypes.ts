@@ -16,6 +16,7 @@ export enum SpaceType {
   BONUS = "BONUS",
   PENALTY = "PENALTY",
   FINISH = "FINISH",
+  POSITION = "POSITION",
 }
 
 export interface Space {

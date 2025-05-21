@@ -8,12 +8,14 @@ interface ActionCardProps {
   action: Action | null;
   onComplete: () => void;
   onChoice?: (option: string) => void;
+  nextTurnLabel?: string; // Added this prop
 }
 
 const ActionCard: React.FC<ActionCardProps> = ({
   action,
   onComplete,
-  onChoice
+  onChoice,
+  nextTurnLabel = "Complete" // Default value
 }) => {
   if (!action) {
     return (
@@ -63,7 +65,7 @@ const ActionCard: React.FC<ActionCardProps> = ({
               )}
             </CardContent>
             <CardFooter className="flex justify-center">
-              <Button onClick={onComplete}>Complete</Button>
+              <Button onClick={onComplete}>{nextTurnLabel}</Button>
             </CardFooter>
           </>
         );
@@ -75,7 +77,7 @@ const ActionCard: React.FC<ActionCardProps> = ({
               <p>{action.text}</p>
             </CardContent>
             <CardFooter className="flex justify-center">
-              <Button onClick={onComplete}>Complete</Button>
+              <Button onClick={onComplete}>{nextTurnLabel}</Button>
             </CardFooter>
           </>
         );
