@@ -5,16 +5,16 @@
 
 @layer base {
   :root {
-    --background: 270 75% 60%;
-    --foreground: 300 100% 50%;
+    --background: 270 100% 28%;
+    --foreground: 326 100% 49%;
 
     --card: 0 0% 100%;
-    --card-foreground: 300 100% 50%;
+    --card-foreground: 326 100% 49%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 300 100% 50%;
+    --popover-foreground: 326 100% 49%;
 
-    --primary: 300 100% 50%;
+    --primary: 326 100% 49%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -23,7 +23,7 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 180 100% 50%;
+    --accent: 199 100% 49%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -44,16 +44,21 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    --magenta-300: 300 100% 70%;
-    --magenta-400: 300 100% 60%;
-    --magenta-500: 300 100% 50%;
+    --magenta: 326 100% 49%;
+    --cyan: 199 100% 49%;
+    --purple: 270 100% 28%;
+    --neon-green: 159 96% 50%;
     
-    --cyan-300: 180 100% 70%;
-    --cyan-400: 180 100% 60%;
-    --cyan-500: 180 100% 50%;
+    --magenta-300: 326 100% 65%;
+    --magenta-400: 326 100% 55%;
+    --magenta-500: 326 100% 49%;
     
-    --purple-600: 270 75% 50%;
-    --purple-800: 270 75% 30%;
+    --cyan-300: 199 100% 70%;
+    --cyan-400: 199 100% 60%;
+    --cyan-500: 199 100% 49%;
+    
+    --purple-600: 270 100% 28%;
+    --purple-800: 270 100% 18%;
   }
 
   .dark {

@@ -53,9 +53,9 @@ const Timer: React.FC<TimerProps> = ({ duration, isActive, onComplete, onReset }
   // Determine color based on remaining time
   const getTimerColor = () => {
     const percentage = (timeRemaining / duration) * 100;
-    if (percentage > 60) return "bg-cyan-500";
-    if (percentage > 30) return "bg-cyan-400";
-    return "bg-cyan-300";
+    if (percentage > 60) return "bg-[#0085FB]";
+    if (percentage > 30) return "bg-[#0085FB]/80";
+    return "bg-[#0085FB]/60";
   };
 
   const handleResetTimer = () => {
@@ -65,24 +65,24 @@ const Timer: React.FC<TimerProps> = ({ duration, isActive, onComplete, onReset }
   };
 
   return (
-    <div className="bg-purple-800 p-4 rounded-lg shadow-md text-magenta-500">
+    <div className="bg-[#4C038E] p-4 rounded-lg shadow-md text-[#FB007C]">
       <div className="flex items-center gap-2 mb-2">
-        <TimerIcon className="h-5 w-5 text-cyan-400" />
+        <TimerIcon className="h-5 w-5 text-[#0085FB]" />
         <h2 className="text-lg font-bold">Timer</h2>
       </div>
       
-      <div className="text-center text-2xl font-bold mb-2 text-magenta-400">
+      <div className="text-center text-2xl font-bold mb-2 text-[#FB007C]">
         {formatTime(timeRemaining)}
       </div>
       
-      <Progress value={progress} className="h-2 bg-purple-600">
+      <Progress value={progress} className="h-2 bg-[#4C038E]/60">
         <div 
           className={cn("h-full transition-all", getTimerColor())} 
           style={{ width: `${progress}%` }}
         />
       </Progress>
       
-      <div className="text-center mt-2 text-xs text-magenta-300">
+      <div className="text-center mt-2 text-xs text-[#07F9AF]">
         {isActive ? "Timer running..." : "Timer inactive"}
       </div>
     </div>

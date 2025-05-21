@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -63,11 +64,12 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				game: {
-					primary: '#9b87f5', // Updated to purple
-					secondary: '#D946EF', // Updated to magenta
-					bonus: '#33C3F0', // Updated to cyan
+					primary: '#4C038E', // Purple
+					secondary: '#FB007C', // Magenta
+					bonus: '#0085FB', // Blue
 					penalty: '#ef4444',
 					finish: '#f59e0b',
+					neon: '#07F9AF', // Neon green
 					board: {
 						light: '#f3f4f6',
 						dark: '#e5e7eb',
