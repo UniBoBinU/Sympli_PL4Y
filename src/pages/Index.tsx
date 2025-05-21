@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from "react";
 import { 
   GamePhase, 
@@ -49,6 +48,7 @@ const Index = () => {
   const [diceValue, setDiceValue] = useState<number>(1);
   const [diceRolling, setDiceRolling] = useState<boolean>(false);
   const [canRoll, setCanRoll] = useState<boolean>(true);
+  const [processedRoll, setProcessedRoll] = useState<boolean>(false);
 
   // Handle player setup completion
   const handlePlayersConfirmed = (players: Player[]) => {
@@ -86,6 +86,7 @@ const Index = () => {
     
     setDiceRolling(true);
     setCanRoll(false);
+    setProcessedRoll(false);
     
     const roll = rollDice();
     setDiceValue(roll);
@@ -146,6 +147,12 @@ const Index = () => {
 
   // Handle dice roll completion
   const handleDiceRollComplete = useCallback(() => {
+    // Prevent multiple executions of this function for a single dice roll
+    if (processedRoll || !diceRolling) return;
+    
+    setProcessedRoll(true);
+    setDiceRolling(false);
+    
     const currentPlayer = gameState.players[gameState.currentPlayerIndex];
     
     // Calculate new position
@@ -259,7 +266,7 @@ const Index = () => {
         advanceToNextPlayer();
       }, 1500);
     }
-  }, [diceValue, gameState.players, gameState.currentPlayerIndex, gameState.actionCategories]);
+  }, [diceValue, gameState.players, gameState.currentPlayerIndex, gameState.actionCategories, diceRolling, processedRoll]);
 
   // Handle action completion
   const handleActionComplete = useCallback(() => {
@@ -352,6 +359,7 @@ const Index = () => {
     // Reset dice state and allow rolling again
     setDiceRolling(false);
     setCanRoll(true);
+    setProcessedRoll(false);
   }, []);
 
   // Reset the game
@@ -370,6 +378,7 @@ const Index = () => {
     setDiceValue(1);
     setDiceRolling(false);
     setCanRoll(true);
+    setProcessedRoll(false);
     
     toast({
       title: "Game Reset",

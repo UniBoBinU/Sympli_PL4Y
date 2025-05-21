@@ -9,9 +9,11 @@ interface DiceProps {
 
 const Dice: React.FC<DiceProps> = ({ value, rolling, onRollComplete }) => {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [prevRolling, setPrevRolling] = useState(false);
 
   useEffect(() => {
-    if (rolling && !isAnimating) {
+    // Only trigger animation when rolling changes from false to true
+    if (rolling && !prevRolling) {
       setIsAnimating(true);
       
       // Animation duration
@@ -24,7 +26,10 @@ const Dice: React.FC<DiceProps> = ({ value, rolling, onRollComplete }) => {
         }
       }, animationDuration);
     }
-  }, [rolling, onRollComplete]);
+    
+    // Update previous rolling state
+    setPrevRolling(rolling);
+  }, [rolling, onRollComplete, prevRolling]);
 
   // Render dice dots based on value
   const renderDots = () => {
