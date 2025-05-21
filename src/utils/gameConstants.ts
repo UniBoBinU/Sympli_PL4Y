@@ -1,5 +1,5 @@
 
-import { Space, SpaceType } from "./gameTypes";
+import { Action, ActionType, Space, SpaceType } from "./gameTypes";
 
 // Board configuration
 export const TOTAL_SPACES = 32;
@@ -50,41 +50,41 @@ export const BOARD_SPACES: Space[] = Array.from({ length: TOTAL_SPACES }, (_, in
 });
 
 // Sample actions for initial game (would be loaded from JSON in full implementation)
-export const SAMPLE_ACTIONS = [
+export const SAMPLE_ACTIONS: Action[] = [
   {
     id: "1",
-    type: "DRINK",
+    type: ActionType.DRINK,
     text: "Take two sips",
     category: ["drinks"]
   },
   {
     id: "2",
-    type: "QUESTION",
+    type: ActionType.QUESTION,
     text: "What's your most embarrassing moment?",
     category: ["personal"]
   },
   {
     id: "3",
-    type: "DARE",
+    type: ActionType.DARE,
     text: "Do 10 jumping jacks",
     category: ["physical"]
   },
   {
     id: "4",
-    type: "EVENT",
+    type: ActionType.EVENT,
     text: "Everyone with blue clothing drinks",
     category: ["drinks", "group"]
   },
   {
     id: "5",
-    type: "CHOICE",
+    type: ActionType.CHOICE,
     text: "Choose: Take a shot or answer a personal question",
     options: ["Take a shot", "Answer a question"],
     category: ["drinks", "personal"]
   },
   {
     id: "6",
-    type: "POSITION",
+    type: ActionType.POSITION,
     text: "Hold this position for 30 seconds",
     imageUrl: "https://images.unsplash.com/photo-1472396961693-142e6e269027",
     category: ["intimate"]

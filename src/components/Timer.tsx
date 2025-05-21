@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { formatTime } from "@/utils/gameUtils";
 import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 
 interface TimerProps {
   duration: number; // in seconds
@@ -57,8 +58,7 @@ const Timer: React.FC<TimerProps> = ({ duration, isActive, onComplete }) => {
       
       <Progress 
         value={progress} 
-        className="h-2"
-        indicatorClassName={getTimerColor()}
+        className={cn("h-2", getTimerColor())}
       />
       
       <div className="text-center mt-2 text-xs text-gray-500">

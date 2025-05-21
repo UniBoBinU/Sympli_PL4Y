@@ -103,7 +103,8 @@ const Dice: React.FC<DiceProps> = ({ value, rolling, onRollComplete }) => {
       </div>
       
       {/* Dice CSS */}
-      <style jsx>{`
+      <style>
+        {`
         .dot-container {
           width: 100%;
           height: 100%;
@@ -125,7 +126,8 @@ const Dice: React.FC<DiceProps> = ({ value, rolling, onRollComplete }) => {
         .middle-right { top: 50%; right: 20%; transform: translateY(-50%); }
         .bottom-left { bottom: 20%; left: 20%; }
         .bottom-right { bottom: 20%; right: 20%; }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };

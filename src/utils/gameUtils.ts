@@ -26,7 +26,7 @@ export const getRandomAction = (activeCategories: Record<string, boolean>): Acti
   }
 
   const randomIndex = getRandomInt(0, filteredActions.length - 1);
-  return filteredActions[randomIndex];
+  return filteredActions[randomIndex] as Action;
 };
 
 // Calculate the new position after a dice roll
