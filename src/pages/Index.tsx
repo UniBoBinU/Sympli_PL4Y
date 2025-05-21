@@ -31,6 +31,10 @@ import Timer from "@/components/Timer";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
+// Min and max timer duration in seconds (2-5 minutes)
+const MIN_TIMER_DURATION = 120; 
+const MAX_TIMER_DURATION = 300;
+
 const Index = () => {
   const { toast } = useToast();
   const [gameState, setGameState] = useState<GameState>({
@@ -50,12 +54,33 @@ const Index = () => {
   const [canRoll, setCanRoll] = useState<boolean>(true);
   const [processedRoll, setProcessedRoll] = useState<boolean>(false);
 
+  // Generate a random timer duration between MIN and MAX
+  const getRandomTimerDuration = useCallback(() => {
+    return Math.floor(Math.random() * (MAX_TIMER_DURATION - MIN_TIMER_DURATION + 1)) + MIN_TIMER_DURATION;
+  }, []);
+
+  // Reset timer with a new random duration
+  const resetTimer = useCallback(() => {
+    const newDuration = getRandomTimerDuration();
+    setGameState(prev => ({
+      ...prev,
+      timerDuration: newDuration,
+      timerRemaining: newDuration,
+      timerActive: true
+    }));
+  }, [getRandomTimerDuration]);
+
   // Handle player setup completion
   const handlePlayersConfirmed = (players: Player[]) => {
+    // Initialize with random timer duration
+    const initialTimerDuration = getRandomTimerDuration();
+    
     setGameState(prev => ({
       ...prev,
       phase: GamePhase.PLAYING,
-      players
+      players,
+      timerDuration: initialTimerDuration,
+      timerRemaining: initialTimerDuration
     }));
     
     // Add game start event
@@ -71,7 +96,9 @@ const Index = () => {
       ...prev,
       phase: GamePhase.PLAYING,
       players,
-      history: [startEvent]
+      history: [startEvent],
+      timerDuration: initialTimerDuration,
+      timerRemaining: initialTimerDuration
     }));
     
     toast({
@@ -236,7 +263,7 @@ const Index = () => {
     if (action) {
       // Set the timer duration based on action type
       const timer = action.type === "POSITION" ? 
-        POSITION_TIMER_DURATION : DEFAULT_TIMER_DURATION;
+        POSITION_TIMER_DURATION : gameState.timerDuration;
       
       const actionEvent = createGameEvent(
         currentPlayer.id,
@@ -249,8 +276,6 @@ const Index = () => {
         players: updatedPlayers,
         currentAction: action,
         timerActive: true,
-        timerDuration: timer,
-        timerRemaining: timer,
         history: [...prev.history, actionEvent]
       }));
     } else {
@@ -266,7 +291,7 @@ const Index = () => {
         advanceToNextPlayer();
       }, 1500);
     }
-  }, [diceValue, gameState.players, gameState.currentPlayerIndex, gameState.actionCategories, diceRolling, processedRoll]);
+  }, [diceValue, gameState.players, gameState.currentPlayerIndex, gameState.actionCategories, diceRolling, processedRoll, gameState.timerDuration]);
 
   // Handle action completion
   const handleActionComplete = useCallback(() => {
@@ -275,9 +300,6 @@ const Index = () => {
       currentAction: null,
       timerActive: false
     }));
-    
-    // Proceed to the next player
-    advanceToNextPlayer();
   }, []);
 
   // Handle timer completion
@@ -309,6 +331,18 @@ const Index = () => {
     // Complete the action
     handleActionComplete();
   }, [gameState.players, gameState.currentPlayerIndex, handleActionComplete]);
+
+  // Handle Next Turn button click
+  const handleNextTurn = useCallback(() => {
+    // First complete the current action if any
+    handleActionComplete();
+    
+    // Then advance to the next player
+    advanceToNextPlayer();
+    
+    // Reset the timer with a new random duration
+    resetTimer();
+  }, [handleActionComplete, advanceToNextPlayer, resetTimer]);
 
   // Advance to the next player
   const advanceToNextPlayer = useCallback(() => {
@@ -394,18 +428,18 @@ const Index = () => {
 
   if (gameState.phase === GamePhase.SETUP) {
     return (
-      <div className="min-h-screen bg-gray-100 py-12 px-4">
+      <div className="min-h-screen bg-purple-800 py-12 px-4">
         <PlayerSetup onPlayersConfirmed={handlePlayersConfirmed} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
+    <div className="min-h-screen bg-purple-800 p-4 text-magenta-500">
       <div className="container mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-game-primary">Board Game</h1>
-          <Button onClick={handleResetGame} variant="outline">New Game</Button>
+          <h1 className="text-3xl font-bold text-magenta-400">Board Game</h1>
+          <Button onClick={handleResetGame} variant="outline" className="bg-cyan-500 text-purple-800 hover:bg-cyan-400">New Game</Button>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -442,8 +476,9 @@ const Index = () => {
             {/* Action card */}
             <ActionCard 
               action={gameState.currentAction}
-              onComplete={handleActionComplete}
+              onComplete={handleNextTurn}
               onChoice={handleActionChoice}
+              nextTurnLabel="Next Turn"
             />
             
             {/* Timer */}
@@ -451,6 +486,7 @@ const Index = () => {
               duration={gameState.timerDuration}
               isActive={gameState.timerActive}
               onComplete={handleTimerComplete}
+              onReset={resetTimer}
             />
             
             {/* Game history */}

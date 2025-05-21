@@ -37,24 +37,27 @@ const GameHistory: React.FC<GameHistoryProps> = ({ events, players }) => {
     return player ? player.color : "#888888";
   };
 
+  // Filter only ACTION type events
+  const actionEvents = events.filter(event => event.type === "ACTION" || event.type === "CHOICE");
+
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md h-60">
-      <h2 className="text-lg font-bold mb-2">Game History</h2>
+    <div className="bg-purple-800 p-4 rounded-lg shadow-md h-60 text-magenta-500">
+      <h2 className="text-lg font-bold mb-2">Action History</h2>
       
-      {events.length === 0 ? (
-        <div className="text-gray-500 text-center py-4">
-          No events yet. Start rolling!
+      {actionEvents.length === 0 ? (
+        <div className="text-magenta-300 text-center py-4">
+          No actions recorded yet.
         </div>
       ) : (
         <ScrollArea className="h-44" ref={scrollAreaRef}>
           <div className="space-y-2 pr-4">
-            {events.map((event) => (
+            {actionEvents.map((event, index) => (
               <div key={event.id} className="text-sm border-l-2 pl-2" style={{ borderColor: getPlayerColor(event.playerId) }}>
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>{formatTime(event.timestamp)}</span>
+                <div className="flex justify-between text-xs text-magenta-300">
+                  <span>#{index + 1}</span>
                   <span>{getPlayerName(event.playerId)}</span>
                 </div>
-                <p>{event.description}</p>
+                <p className="text-magenta-400">{event.description}</p>
               </div>
             ))}
           </div>

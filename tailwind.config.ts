@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -64,25 +63,39 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				game: {
-					primary: '#6d28d9', // Deep purple
-					secondary: '#8b5cf6', // Lighter purple
-					bonus: '#10b981', // Green for bonus spaces
-					penalty: '#ef4444', // Red for penalty spaces
-					finish: '#f59e0b', // Amber for finish space
+					primary: '#9b87f5', // Updated to purple
+					secondary: '#D946EF', // Updated to magenta
+					bonus: '#33C3F0', // Updated to cyan
+					penalty: '#ef4444',
+					finish: '#f59e0b',
 					board: {
-						light: '#f3f4f6', // Light gray for light spaces
-						dark: '#e5e7eb', // Darker gray for dark spaces
+						light: '#f3f4f6',
+						dark: '#e5e7eb',
 					}
 				},
 				player: {
-					'1': '#ef4444', // Red
-					'2': '#3b82f6', // Blue
-					'3': '#10b981', // Green
-					'4': '#f59e0b', // Amber
-					'5': '#8b5cf6', // Purple
-					'6': '#ec4899', // Pink
-					'7': '#06b6d4', // Cyan
-					'8': '#84cc16', // Lime
+					'1': '#ef4444',
+					'2': '#3b82f6',
+					'3': '#10b981',
+					'4': '#f59e0b',
+					'5': '#8b5cf6',
+					'6': '#ec4899',
+					'7': '#06b6d4',
+					'8': '#84cc16',
+				},
+				magenta: {
+					'300': 'hsl(var(--magenta-300))',
+					'400': 'hsl(var(--magenta-400))',
+					'500': 'hsl(var(--magenta-500))',
+				},
+				cyan: {
+					'300': 'hsl(var(--cyan-300))',
+					'400': 'hsl(var(--cyan-400))',
+					'500': 'hsl(var(--cyan-500))',
+				},
+				purple: {
+					'600': 'hsl(var(--purple-600))',
+					'800': 'hsl(var(--purple-800))',
 				}
 			},
 			borderRadius: {

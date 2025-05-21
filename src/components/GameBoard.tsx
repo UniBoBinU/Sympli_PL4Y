@@ -34,8 +34,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ players, currentPlayerIndex }) =>
   });
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md w-full">
-      <h2 className="text-2xl font-bold text-game-primary mb-4 text-center">Game Board</h2>
+    <div className="bg-purple-800 p-4 rounded-lg shadow-md w-full border border-cyan-400">
+      <h2 className="text-2xl font-bold text-magenta-400 mb-4 text-center">Game Board</h2>
       
       <div className="flex flex-col gap-1">
         {rows.map((row, rowIndex) => (
@@ -56,7 +56,14 @@ const GameBoard: React.FC<GameBoardProps> = ({ players, currentPlayerIndex }) =>
                 >
                   <span className="text-xs font-medium">{space.id + 1}</span>
                   
-                  {space.type !== SpaceType.REGULAR && (
+                  {space.type !== SpaceType.REGULAR && space.type !== SpaceType.POSITION && (
+                    <div className="absolute top-0 left-0 w-full text-[8px] text-center">
+                      {space.type}
+                    </div>
+                  )}
+                  
+                  {/* Show POSITION type without the space number */}
+                  {space.type === SpaceType.POSITION && (
                     <div className="absolute top-0 left-0 w-full text-[8px] text-center">
                       {space.type}
                     </div>
