@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,27 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				game: {
+					primary: '#6d28d9', // Deep purple
+					secondary: '#8b5cf6', // Lighter purple
+					bonus: '#10b981', // Green for bonus spaces
+					penalty: '#ef4444', // Red for penalty spaces
+					finish: '#f59e0b', // Amber for finish space
+					board: {
+						light: '#f3f4f6', // Light gray for light spaces
+						dark: '#e5e7eb', // Darker gray for dark spaces
+					}
+				},
+				player: {
+					'1': '#ef4444', // Red
+					'2': '#3b82f6', // Blue
+					'3': '#10b981', // Green
+					'4': '#f59e0b', // Amber
+					'5': '#8b5cf6', // Purple
+					'6': '#ec4899', // Pink
+					'7': '#06b6d4', // Cyan
+					'8': '#84cc16', // Lime
 				}
 			},
 			borderRadius: {
@@ -84,11 +106,25 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'dice-roll': {
+					'0%': { transform: 'rotateX(0deg) rotateY(0deg)' },
+					'25%': { transform: 'rotateX(90deg) rotateY(180deg)' },
+					'50%': { transform: 'rotateX(180deg) rotateY(90deg)' },
+					'75%': { transform: 'rotateX(270deg) rotateY(270deg)' },
+					'100%': { transform: 'rotateX(360deg) rotateY(360deg)' }
+				},
+				'token-move': {
+					'0%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-20px)' },
+					'100%': { transform: 'translateY(0px)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'dice-roll': 'dice-roll 0.6s ease-out',
+				'token-move': 'token-move 0.5s ease-out'
 			}
 		}
 	},
