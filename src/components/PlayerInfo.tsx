@@ -3,6 +3,12 @@ import React from "react";
 import { Player } from "@/utils/gameTypes";
 import { Button } from "@/components/ui/button";
 import { BOARD_SPACES } from "@/utils/gameConstants";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
 
 interface PlayerInfoProps {
   players: Player[];
@@ -23,7 +29,28 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
   
   return (
     <div className="bg-white p-4 rounded-lg shadow-md">
-      <h2 className="text-xl font-bold mb-4">Current Player</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold">Current Player</h2>
+        
+        {/* Spank Bank Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="spank-bank-dropdown flex items-center gap-1 text-sm"
+            >
+              Spank Bank
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="spank-bank-dropdown">
+            <div className="p-2 text-sm">
+              Game history and player stats coming soon...
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       
       <div className="flex items-center gap-3 mb-4">
         <div 
@@ -45,6 +72,10 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
         <div className="flex justify-between">
           <span>Extra Actions:</span>
           <span>{currentPlayer.extraActions}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Style:</span>
+          <span className="capitalize">{currentPlayer.movementStyle || 'bounce'}</span>
         </div>
         {currentPlayer.skipTurn && (
           <div className="flex justify-between text-game-penalty">

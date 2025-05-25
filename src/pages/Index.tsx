@@ -28,12 +28,19 @@ import PlayerInfo from "@/components/PlayerInfo";
 import ActionCard from "@/components/ActionCard";
 import GameHistory from "@/components/GameHistory";
 import Timer from "@/components/Timer";
-import { Button } from "@/components/ui/button";
+import TopBar from "@/components/TopBar";
 import { useToast } from "@/hooks/use-toast";
 
 // Min and max timer duration in seconds (2-5 minutes)
 const MIN_TIMER_DURATION = 120; 
 const MAX_TIMER_DURATION = 300;
+
+// Position prompts for Position tiles
+const POSITION_PROMPTS = [
+  "Mmmm like this — reenact the position and choose an action to perform in it.",
+  "Photo-Op! Reenact the position and let another player take a picture.",
+  "Sexy Selfie! Reenact the position, take a selfie, then send it to another player."
+];
 
 const Index = () => {
   const { toast } = useToast();
@@ -70,13 +77,11 @@ const Index = () => {
     }));
   }, [getRandomTimerDuration]);
 
-  // Advance to the next player - MOVED THIS UP to fix the declaration order issue
+  // Advance to the next player
   const advanceToNextPlayer = useCallback(() => {
     setGameState(prev => {
-      // Find the next player who doesn't have skipTurn
       let nextPlayerIndex = (prev.currentPlayerIndex + 1) % prev.players.length;
       
-      // If the next player has skipTurn flag, set it to false and find the next player
       const updatedPlayers = [...prev.players];
       if (updatedPlayers[nextPlayerIndex].skipTurn) {
         updatedPlayers[nextPlayerIndex] = {
@@ -84,14 +89,12 @@ const Index = () => {
           skipTurn: false
         };
         
-        // Log the skipped turn
         const skipEvent = createGameEvent(
           updatedPlayers[nextPlayerIndex].id,
           "SKIP_TURN",
           "Turn skipped due to penalty"
         );
         
-        // Move to the next player
         nextPlayerIndex = (nextPlayerIndex + 1) % prev.players.length;
         
         return {
@@ -102,7 +105,6 @@ const Index = () => {
         };
       }
       
-      // Next player's turn event
       const turnEvent = createGameEvent(
         updatedPlayers[nextPlayerIndex].id,
         "TURN_START",
@@ -116,7 +118,6 @@ const Index = () => {
       };
     });
     
-    // Reset dice state and allow rolling again
     setDiceRolling(false);
     setCanRoll(true);
     setProcessedRoll(false);
@@ -124,18 +125,8 @@ const Index = () => {
 
   // Handle player setup completion
   const handlePlayersConfirmed = (players: Player[]) => {
-    // Initialize with random timer duration
     const initialTimerDuration = getRandomTimerDuration();
     
-    setGameState(prev => ({
-      ...prev,
-      phase: GamePhase.PLAYING,
-      players,
-      timerDuration: initialTimerDuration,
-      timerRemaining: initialTimerDuration
-    }));
-    
-    // Add game start event
     const startEvent: GameEvent = {
       id: Math.random().toString(36).substring(2, 9),
       timestamp: Date.now(),
@@ -144,14 +135,17 @@ const Index = () => {
       description: "Game started! Let's roll!"
     };
     
-    setGameState(prev => ({
-      ...prev,
+    setGameState({
       phase: GamePhase.PLAYING,
       players,
-      history: [startEvent],
+      currentPlayerIndex: 0,
+      currentAction: null,
+      timerActive: false,
       timerDuration: initialTimerDuration,
-      timerRemaining: initialTimerDuration
-    }));
+      timerRemaining: initialTimerDuration,
+      history: [startEvent],
+      actionCategories: DEFAULT_ACTION_CATEGORIES
+    });
     
     toast({
       title: "Game Started!",
@@ -172,7 +166,6 @@ const Index = () => {
     
     const currentPlayer = gameState.players[gameState.currentPlayerIndex];
     
-    // Log the dice roll
     const rollEvent = createGameEvent(
       currentPlayer.id,
       "DICE_ROLL",
@@ -200,14 +193,12 @@ const Index = () => {
       return;
     }
     
-    // Update player's re-roll count
     const updatedPlayers = [...gameState.players];
     updatedPlayers[gameState.currentPlayerIndex] = {
       ...currentPlayer,
       rerolls: currentPlayer.rerolls - 1
     };
     
-    // Log the re-roll
     const rerollEvent = createGameEvent(
       currentPlayer.id,
       "RE_ROLL",
@@ -220,13 +211,11 @@ const Index = () => {
       history: [...prev.history, rerollEvent]
     }));
     
-    // Trigger the dice roll
     handleRollDice();
   }, [canRoll, gameState.players, gameState.currentPlayerIndex, handleRollDice, toast]);
 
   // Handle dice roll completion
   const handleDiceRollComplete = useCallback(() => {
-    // Prevent multiple executions of this function for a single dice roll
     if (processedRoll || !diceRolling) return;
     
     setProcessedRoll(true);
@@ -234,21 +223,18 @@ const Index = () => {
     
     const currentPlayer = gameState.players[gameState.currentPlayerIndex];
     
-    // Calculate new position
     const newPosition = calculateNewPosition(
       currentPlayer.position,
       diceValue,
       BOARD_SPACES.length
     );
     
-    // Update player position
     const updatedPlayers = [...gameState.players];
     updatedPlayers[gameState.currentPlayerIndex] = {
       ...currentPlayer,
       position: newPosition
     };
     
-    // Log the movement
     const moveEvent = createGameEvent(
       currentPlayer.id,
       "MOVE",
@@ -261,7 +247,6 @@ const Index = () => {
       history: [...prev.history, moveEvent]
     }));
     
-    // Apply space effect
     const currentSpace = BOARD_SPACES[newPosition];
     if (currentSpace.effect) {
       const updatedPlayer = applySpaceEffect(
@@ -272,7 +257,6 @@ const Index = () => {
       
       updatedPlayers[gameState.currentPlayerIndex] = updatedPlayer;
       
-      // Log the space effect
       let effectDescription = "";
       switch (currentSpace.effect.type) {
         case "MOVE_FORWARD":
@@ -309,11 +293,28 @@ const Index = () => {
       }
     }
     
-    // Draw a random action
+    if (currentSpace.type === 'POSITION') {
+      const randomPrompt = POSITION_PROMPTS[Math.floor(Math.random() * POSITION_PROMPTS.length)];
+      const positionAction: Action = {
+        id: `position-${Date.now()}`,
+        type: 'POSITION',
+        text: randomPrompt,
+        category: ['intimate']
+      };
+      
+      setGameState(prev => ({
+        ...prev,
+        players: updatedPlayers,
+        currentAction: positionAction,
+        timerActive: true
+      }));
+      
+      return;
+    }
+    
     const action = getRandomAction(gameState.actionCategories);
     
     if (action) {
-      // Set the timer duration based on action type
       const timer = action.type === "POSITION" ? 
         POSITION_TIMER_DURATION : gameState.timerDuration;
       
@@ -331,14 +332,12 @@ const Index = () => {
         history: [...prev.history, actionEvent]
       }));
     } else {
-      // No action available or filtered out
       setGameState(prev => ({
         ...prev,
         players: updatedPlayers,
         currentAction: null
       }));
       
-      // Proceed to the next player
       setTimeout(() => {
         advanceToNextPlayer();
       }, 1500);
@@ -368,7 +367,6 @@ const Index = () => {
   const handleActionChoice = useCallback((option: string) => {
     const currentPlayer = gameState.players[gameState.currentPlayerIndex];
     
-    // Log the choice
     const choiceEvent = createGameEvent(
       currentPlayer.id,
       "CHOICE",
@@ -380,19 +378,13 @@ const Index = () => {
       history: [...prev.history, choiceEvent]
     }));
     
-    // Complete the action
     handleActionComplete();
   }, [gameState.players, gameState.currentPlayerIndex, handleActionComplete]);
 
   // Handle Next Turn button click
   const handleNextTurn = useCallback(() => {
-    // First complete the current action if any
     handleActionComplete();
-    
-    // Then advance to the next player
     advanceToNextPlayer();
-    
-    // Reset the timer with a new random duration
     resetTimer();
   }, [handleActionComplete, advanceToNextPlayer, resetTimer]);
 
@@ -420,84 +412,89 @@ const Index = () => {
     });
   };
 
-  // Connect dice roll animation completion to position update
   useEffect(() => {
     if (!diceRolling) return;
-    // Dice rolling logic is handled by the Dice component
   }, [diceRolling]);
 
   if (gameState.phase === GamePhase.SETUP) {
     return (
-      <div className="min-h-screen bg-[#6604A0] py-12 px-4">
-        <PlayerSetup onPlayersConfirmed={handlePlayersConfirmed} />
-      </div>
+      <>
+        <TopBar onResetGame={handleResetGame} />
+        <div className="min-h-screen bg-[#6604A0] pt-20 py-12 px-4">
+          <PlayerSetup onPlayersConfirmed={handlePlayersConfirmed} />
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#6604A0] p-4 text-[#FB007C]">
-      <div className="container mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-[#FB007C]">Board Game</h1>
-          <Button onClick={handleResetGame} variant="outline" className="bg-[#0085FB] text-[#6604A0] hover:bg-[#0085FB]/80">New Game</Button>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Left column: Game board */}
-          <div className="md:col-span-2">
-            <GameBoard 
-              players={gameState.players}
-              currentPlayerIndex={gameState.currentPlayerIndex}
-            />
-          </div>
-          
-          {/* Right column: Controls and info */}
-          <div className="space-y-6">
-            {/* Player info and dice */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Dice 
-                  value={diceValue}
-                  rolling={diceRolling}
-                  onRollComplete={handleDiceRollComplete}
-                />
-              </div>
-              <div>
-                <PlayerInfo 
-                  players={gameState.players}
-                  currentPlayerIndex={gameState.currentPlayerIndex}
-                  onRollDice={handleRollDice}
-                  onReroll={handleReroll}
-                  canRoll={canRoll}
-                />
-              </div>
+    <>
+      <TopBar onResetGame={handleResetGame} />
+      <div className="min-h-screen bg-[#6604A0] pt-20 p-4 text-[#FB007C]">
+        <div className="container mx-auto h-[calc(100vh-6rem)]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
+            {/* Left column: Game board */}
+            <div className="md:col-span-2 h-full">
+              <GameBoard 
+                players={gameState.players}
+                currentPlayerIndex={gameState.currentPlayerIndex}
+              />
             </div>
             
-            {/* Action card */}
-            <ActionCard 
-              action={gameState.currentAction}
-              onComplete={handleNextTurn}
-              onChoice={handleActionChoice}
-              nextTurnLabel="Next Turn"
-            />
-            
-            {/* Timer */}
-            <Timer 
-              duration={gameState.timerDuration}
-              isActive={gameState.timerActive}
-              onComplete={handleTimerComplete}
-              onReset={resetTimer}
-            />
-            
-            {/* Game history */}
-            <GameHistory 
-              events={gameState.history}
-              players={gameState.players}
-            />
+            {/* Right column: Controls and info - Fixed height, no overflow */}
+            <div className="h-full flex flex-col space-y-4 max-h-[calc(100vh-8rem)] overflow-hidden">
+              {/* Dice row - horizontal layout */}
+              <div className="flex gap-4 shrink-0">
+                <div className="flex-1">
+                  <Dice 
+                    value={diceValue}
+                    rolling={diceRolling}
+                    onRollComplete={handleDiceRollComplete}
+                  />
+                </div>
+                <div className="flex-1">
+                  <PlayerInfo 
+                    players={gameState.players}
+                    currentPlayerIndex={gameState.currentPlayerIndex}
+                    onRollDice={handleRollDice}
+                    onReroll={handleReroll}
+                    canRoll={canRoll}
+                  />
+                </div>
+              </div>
+              
+              {/* Timer - horizontal below dice */}
+              <div className="shrink-0">
+                <Timer 
+                  duration={gameState.timerDuration}
+                  isActive={gameState.timerActive}
+                  onComplete={handleTimerComplete}
+                  onReset={resetTimer}
+                />
+              </div>
+              
+              {/* Actions container - anchored at bottom */}
+              <div className="flex-1 flex flex-col justify-end space-y-4 min-h-0">
+                <div className="shrink-0">
+                  <ActionCard 
+                    action={gameState.currentAction}
+                    onComplete={handleNextTurn}
+                    onChoice={handleActionChoice}
+                  />
+                </div>
+                
+                <div className="shrink-0">
+                  <GameHistory 
+                    events={gameState.history}
+                    players={gameState.players}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

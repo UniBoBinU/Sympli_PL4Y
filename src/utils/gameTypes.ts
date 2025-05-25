@@ -1,4 +1,3 @@
-
 export type PlayerColor = string;
 
 export interface Player {
@@ -9,6 +8,7 @@ export interface Player {
   rerolls: number;
   extraActions: number;
   skipTurn: boolean;
+  movementStyle?: MovementStyle;
 }
 
 export enum SpaceType {
@@ -18,6 +18,17 @@ export enum SpaceType {
   FINISH = "FINISH",
   POSITION = "POSITION",
 }
+
+export enum ActionType {
+  DRINK = "DRINK",
+  QUESTION = "QUESTION",
+  DARE = "DARE",
+  EVENT = "EVENT",
+  CHOICE = "CHOICE",
+  POSITION = "POSITION",
+}
+
+export type MovementStyle = "bounce" | "slip" | "tug" | "rub" | "grind" | "thrust";
 
 export interface Space {
   id: number;
@@ -30,28 +41,27 @@ export type SpaceEffect = {
   value?: number;
 };
 
-export enum ActionType {
-  CHOICE = "CHOICE",
-  DRINK = "DRINK",
-  QUESTION = "QUESTION",
-  DARE = "DARE",
-  EVENT = "EVENT",
-  POSITION = "POSITION",
-}
-
 export interface Action {
   id: string;
   type: ActionType;
   text: string;
   options?: string[];
   imageUrl?: string;
-  category?: string[];
+  category: string[];
 }
 
 export enum GamePhase {
   SETUP = "SETUP",
   PLAYING = "PLAYING",
-  GAME_OVER = "GAME_OVER",
+  FINISHED = "FINISHED",
+}
+
+export interface GameEvent {
+  id: string;
+  timestamp: number;
+  playerId: number;
+  type: string;
+  description: string;
 }
 
 export interface GameState {
@@ -64,12 +74,4 @@ export interface GameState {
   timerRemaining: number;
   history: GameEvent[];
   actionCategories: Record<string, boolean>;
-}
-
-export interface GameEvent {
-  id: string;
-  timestamp: number;
-  playerId: number;
-  type: string;
-  description: string;
 }
