@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from "react";
 import { 
   GamePhase, 
@@ -5,7 +6,8 @@ import {
   GameState,
   GameEvent,
   Action,
-  Space
+  Space,
+  ActionType
 } from "@/utils/gameTypes";
 import { 
   BOARD_SPACES, 
@@ -297,7 +299,7 @@ const Index = () => {
       const randomPrompt = POSITION_PROMPTS[Math.floor(Math.random() * POSITION_PROMPTS.length)];
       const positionAction: Action = {
         id: `position-${Date.now()}`,
-        type: 'POSITION',
+        type: ActionType.POSITION,
         text: randomPrompt,
         category: ['intimate']
       };
@@ -315,7 +317,7 @@ const Index = () => {
     const action = getRandomAction(gameState.actionCategories);
     
     if (action) {
-      const timer = action.type === "POSITION" ? 
+      const timer = action.type === ActionType.POSITION ? 
         POSITION_TIMER_DURATION : gameState.timerDuration;
       
       const actionEvent = createGameEvent(
