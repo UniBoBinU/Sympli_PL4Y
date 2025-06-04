@@ -6,26 +6,20 @@ import {
   GameState,
   GameEvent,
   Action,
-  Space,
   ActionType
 } from "@/utils/gameTypes";
 import { 
-  BOARD_SPACES, 
   DEFAULT_ACTION_CATEGORIES,
   DEFAULT_TIMER_DURATION,
   POSITION_TIMER_DURATION,
   SAMPLE_ACTIONS
 } from "@/utils/gameConstants";
 import {
-  rollDice,
-  calculateNewPosition,
-  applySpaceEffect,
   getRandomAction,
   createGameEvent
 } from "@/utils/gameUtils";
 import PlayerSetup from "@/components/PlayerSetup";
-import GameBoard from "@/components/GameBoard";
-import Dice from "@/components/Dice";
+import ClassDice from "@/components/ClassDice";
 import PlayerInfo from "@/components/PlayerInfo";
 import ActionCard from "@/components/ActionCard";
 import GameHistory from "@/components/GameHistory";
@@ -44,6 +38,9 @@ const POSITION_PROMPTS = [
   "Sexy Selfie! Reenact the position, take a selfie, then send it to another player."
 ];
 
+// Available classes for the dice
+const DICE_CLASSES = ['intimate', 'playful', 'daring', 'naughty', 'wild', 'extreme'];
+
 const Index = () => {
   const { toast } = useToast();
   const [gameState, setGameState] = useState<GameState>({
@@ -58,10 +55,9 @@ const Index = () => {
     actionCategories: DEFAULT_ACTION_CATEGORIES
   });
   
-  const [diceValue, setDiceValue] = useState<number>(1);
+  const [selectedClass, setSelectedClass] = useState<string | null>(null);
   const [diceRolling, setDiceRolling] = useState<boolean>(false);
   const [canRoll, setCanRoll] = useState<boolean>(true);
-  const [processedRoll, setProcessedRoll] = useState<boolean>(false);
 
   // Generate a random timer duration between MIN and MAX
   const getRandomTimerDuration = useCallback(() => {
@@ -122,7 +118,7 @@ const Index = () => {
     
     setDiceRolling(false);
     setCanRoll(true);
-    setProcessedRoll(false);
+    setSelectedClass(null);
   }, []);
 
   // Handle player setup completion
@@ -161,17 +157,17 @@ const Index = () => {
     
     setDiceRolling(true);
     setCanRoll(false);
-    setProcessedRoll(false);
     
-    const roll = rollDice();
-    setDiceValue(roll);
+    // Select random class
+    const randomClass = DICE_CLASSES[Math.floor(Math.random() * DICE_CLASSES.length)];
+    setSelectedClass(randomClass);
     
     const currentPlayer = gameState.players[gameState.currentPlayerIndex];
     
     const rollEvent = createGameEvent(
       currentPlayer.id,
       "DICE_ROLL",
-      `Rolled a ${roll}`
+      `Rolled: ${randomClass}`
     );
     
     setGameState(prev => ({
@@ -218,103 +214,14 @@ const Index = () => {
 
   // Handle dice roll completion
   const handleDiceRollComplete = useCallback(() => {
-    if (processedRoll || !diceRolling) return;
+    if (!selectedClass) return;
     
-    setProcessedRoll(true);
     setDiceRolling(false);
     
     const currentPlayer = gameState.players[gameState.currentPlayerIndex];
     
-    const newPosition = calculateNewPosition(
-      currentPlayer.position,
-      diceValue,
-      BOARD_SPACES.length
-    );
-    
-    const updatedPlayers = [...gameState.players];
-    updatedPlayers[gameState.currentPlayerIndex] = {
-      ...currentPlayer,
-      position: newPosition
-    };
-    
-    const moveEvent = createGameEvent(
-      currentPlayer.id,
-      "MOVE",
-      `Moved to space ${newPosition + 1}`
-    );
-    
-    setGameState(prev => ({
-      ...prev,
-      players: updatedPlayers,
-      history: [...prev.history, moveEvent]
-    }));
-    
-    const currentSpace = BOARD_SPACES[newPosition];
-    if (currentSpace.effect) {
-      const updatedPlayer = applySpaceEffect(
-        updatedPlayers[gameState.currentPlayerIndex],
-        currentSpace,
-        BOARD_SPACES.length
-      );
-      
-      updatedPlayers[gameState.currentPlayerIndex] = updatedPlayer;
-      
-      let effectDescription = "";
-      switch (currentSpace.effect.type) {
-        case "MOVE_FORWARD":
-          effectDescription = `Bonus: Moved forward ${currentSpace.effect.value} spaces`;
-          break;
-        case "MOVE_BACKWARD":
-          effectDescription = `Penalty: Moved back ${currentSpace.effect.value} spaces`;
-          break;
-        case "SKIP_TURN":
-          effectDescription = "Penalty: Will skip next turn";
-          break;
-        case "EXTRA_ACTION":
-          effectDescription = "Bonus: Gained an extra action";
-          break;
-        case "FINISH":
-          effectDescription = "Reached the finish line!";
-          break;
-        default:
-          break;
-      }
-      
-      if (effectDescription) {
-        const effectEvent = createGameEvent(
-          currentPlayer.id,
-          "SPACE_EFFECT",
-          effectDescription
-        );
-        
-        setGameState(prev => ({
-          ...prev,
-          players: updatedPlayers,
-          history: [...prev.history, effectEvent]
-        }));
-      }
-    }
-    
-    if (currentSpace.type === 'POSITION') {
-      const randomPrompt = POSITION_PROMPTS[Math.floor(Math.random() * POSITION_PROMPTS.length)];
-      const positionAction: Action = {
-        id: `position-${Date.now()}`,
-        type: ActionType.POSITION,
-        text: randomPrompt,
-        category: ['intimate']
-      };
-      
-      setGameState(prev => ({
-        ...prev,
-        players: updatedPlayers,
-        currentAction: positionAction,
-        timerActive: true
-      }));
-      
-      return;
-    }
-    
-    const action = getRandomAction(gameState.actionCategories);
+    // Get action based on selected class
+    const action = getRandomAction([selectedClass]);
     
     if (action) {
       const timer = action.type === ActionType.POSITION ? 
@@ -323,28 +230,21 @@ const Index = () => {
       const actionEvent = createGameEvent(
         currentPlayer.id,
         "ACTION",
-        `Drew action: ${action.text}`
+        `Drew ${selectedClass} action: ${action.text}`
       );
       
       setGameState(prev => ({
         ...prev,
-        players: updatedPlayers,
         currentAction: action,
         timerActive: true,
         history: [...prev.history, actionEvent]
       }));
     } else {
-      setGameState(prev => ({
-        ...prev,
-        players: updatedPlayers,
-        currentAction: null
-      }));
-      
       setTimeout(() => {
         advanceToNextPlayer();
       }, 1500);
     }
-  }, [diceValue, gameState.players, gameState.currentPlayerIndex, gameState.actionCategories, diceRolling, processedRoll, gameState.timerDuration, advanceToNextPlayer]);
+  }, [selectedClass, gameState.players, gameState.currentPlayerIndex, gameState.timerDuration, advanceToNextPlayer]);
 
   // Handle action completion
   const handleActionComplete = useCallback(() => {
@@ -403,20 +303,15 @@ const Index = () => {
       history: [],
       actionCategories: DEFAULT_ACTION_CATEGORIES
     });
-    setDiceValue(1);
+    setSelectedClass(null);
     setDiceRolling(false);
     setCanRoll(true);
-    setProcessedRoll(false);
     
     toast({
       title: "Game Reset",
       description: "Starting a new game"
     });
   };
-
-  useEffect(() => {
-    if (!diceRolling) return;
-  }, [diceRolling]);
 
   if (gameState.phase === GamePhase.SETUP) {
     return (
@@ -434,38 +329,31 @@ const Index = () => {
       <TopBar onResetGame={handleResetGame} />
       <div className="min-h-screen bg-[#6604A0] pt-20 p-4 text-[#FB007C]">
         <div className="container mx-auto h-[calc(100vh-6rem)]">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
-            {/* Left column: Game board */}
-            <div className="md:col-span-2 h-full">
-              <GameBoard 
-                players={gameState.players}
-                currentPlayerIndex={gameState.currentPlayerIndex}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
+            {/* Left column: Class Dice */}
+            <div className="h-full flex items-center justify-center">
+              <ClassDice 
+                selectedClass={selectedClass}
+                rolling={diceRolling}
+                onRollComplete={handleDiceRollComplete}
+                classes={DICE_CLASSES}
               />
             </div>
             
-            {/* Right column: Controls and info - Fixed height, no overflow */}
+            {/* Right column: Controls and info */}
             <div className="h-full flex flex-col space-y-4 max-h-[calc(100vh-8rem)] overflow-hidden">
-              {/* Dice row - horizontal layout */}
-              <div className="flex gap-4 shrink-0">
-                <div className="flex-1">
-                  <Dice 
-                    value={diceValue}
-                    rolling={diceRolling}
-                    onRollComplete={handleDiceRollComplete}
-                  />
-                </div>
-                <div className="flex-1">
-                  <PlayerInfo 
-                    players={gameState.players}
-                    currentPlayerIndex={gameState.currentPlayerIndex}
-                    onRollDice={handleRollDice}
-                    onReroll={handleReroll}
-                    canRoll={canRoll}
-                  />
-                </div>
+              {/* Player Info */}
+              <div className="shrink-0">
+                <PlayerInfo 
+                  players={gameState.players}
+                  currentPlayerIndex={gameState.currentPlayerIndex}
+                  onRollDice={handleRollDice}
+                  onReroll={handleReroll}
+                  canRoll={canRoll}
+                />
               </div>
               
-              {/* Timer - horizontal below dice */}
+              {/* Timer */}
               <div className="shrink-0">
                 <Timer 
                   duration={gameState.timerDuration}
@@ -475,7 +363,7 @@ const Index = () => {
                 />
               </div>
               
-              {/* Actions container - anchored at bottom */}
+              {/* Actions container */}
               <div className="flex-1 flex flex-col justify-end space-y-4 min-h-0">
                 <div className="shrink-0">
                   <ActionCard 

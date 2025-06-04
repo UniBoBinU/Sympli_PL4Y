@@ -2,7 +2,6 @@
 import React from "react";
 import { Player } from "@/utils/gameTypes";
 import { Button } from "@/components/ui/button";
-import { BOARD_SPACES } from "@/utils/gameConstants";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,20 +61,12 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
       
       <div className="space-y-2 mb-6">
         <div className="flex justify-between">
-          <span>Position:</span>
-          <span>Space {currentPlayer.position + 1} of {BOARD_SPACES.length}</span>
-        </div>
-        <div className="flex justify-between">
           <span>Re-rolls:</span>
           <span>{currentPlayer.rerolls}</span>
         </div>
         <div className="flex justify-between">
           <span>Extra Actions:</span>
           <span>{currentPlayer.extraActions}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Style:</span>
-          <span className="capitalize">{currentPlayer.movementStyle || 'bounce'}</span>
         </div>
         {currentPlayer.skipTurn && (
           <div className="flex justify-between text-game-penalty">
@@ -91,7 +82,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
           disabled={!canRoll || currentPlayer.skipTurn}
           className="bg-game-primary hover:bg-game-secondary"
         >
-          Roll Dice
+          Roll Class Die
         </Button>
         
         <Button 
