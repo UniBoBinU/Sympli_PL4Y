@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from "react";
 import { 
   GamePhase, 
@@ -220,8 +219,11 @@ const Index = () => {
     
     const currentPlayer = gameState.players[gameState.currentPlayerIndex];
     
+    // Create activeCategories object with only the selected class set to true
+    const activeCategories = { [selectedClass]: true };
+    
     // Get action based on selected class
-    const action = getRandomAction([selectedClass]);
+    const action = getRandomAction(activeCategories);
     
     if (action) {
       const timer = action.type === ActionType.POSITION ? 
